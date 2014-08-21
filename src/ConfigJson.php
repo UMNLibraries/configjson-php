@@ -28,7 +28,7 @@ class ConfigJson
             $_jsonString = $params['_jsonString'];
         } else if (isset($params['_jsonFile'])) {
             $_jsonFile = $params['_jsonFile'];
-            $_jsonString = file_get_contents( $_jsonFile );
+            $_jsonString = file_get_contents($_jsonFile);
             if ($_jsonString == null) {
                 throw new \InvalidArgumentException("Could not open config file '$_jsonFile'");
             }
@@ -39,9 +39,36 @@ class ConfigJson
             );
         }
         $this->_jsonString = $_jsonString;
-        $config_object = json_decode($_jsonString); 
 
-        $properties = get_object_vars( $config_object );
+        $configObject = json_decode($_jsonString); 
+        unset($jsonError);
+        switch (json_last_error()) {
+        case JSON_ERROR_NONE:
+          break;
+        case JSON_ERROR_DEPTH:
+          $jsonError = 'Maximum stack depth exceeded';
+          break;
+        case JSON_ERROR_STATE_MISMATCH:
+          $jsonError = 'Underflow or the modes mismatch';
+          break;
+        case JSON_ERROR_CTRL_CHAR:
+          $jsonError = 'Unexpected control character found';
+          break;
+        case JSON_ERROR_SYNTAX:
+          $jsonError = 'Syntax error, malformed JSON';
+          break;
+        case JSON_ERROR_UTF8:
+          $jsonError = 'Malformed UTF-8 characters, possibly incorrectly encoded';
+          break;
+        default:
+          $jsonError = 'Unknown error';
+          break;
+        }
+        if (isset($jsonError)) {
+          throw new \InvalidArgumentException("json_decode error: $jsonError");
+        }
+
+        $properties = get_object_vars($configObject);
         foreach ($properties as $property => $value) {
             $this->$property = $value;
         }

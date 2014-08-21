@@ -38,6 +38,16 @@ class ConfigJsonTest extends \PHPUnit_Framework_TestCase
     /**
      * @expectedException \InvalidArgumentException
      */
+    public function testMalformed()
+    {
+      $config = new ConfigJson(array(
+        '_jsonFile' => dirname(__FILE__) . '/fixtures/malformed-config.json',
+      ));
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
     public function testMissingRequired()
     {
         $jsonString = '{
